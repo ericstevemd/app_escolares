@@ -33,7 +33,7 @@ if(cedula.isEmpty || password.isEmpty){
   return;
 }
 
-  final String url ='http://192.168.100.53:3000/usuario/login';
+  final String url ='http://10.191.67.81:3000/usuario/login';
 
   setState(() {
     _isLoading=true;
@@ -135,30 +135,44 @@ height:400,
       width: width +20 ,
     child: Container(
                 decoration: const BoxDecoration(
-                  image: DecorationImage(image:AssetImage('assets/images/background.png'),fit: BoxFit.fill)
+                  image: DecorationImage(image:AssetImage('assets/images/background-3.png'),fit: BoxFit.fill)
                 
                 ),
               ),),
 
-  Positioned(
-    height: 400,
-    width: width +20 ,
-    child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(image:AssetImage('assets/images/background-2.png'),fit: BoxFit.fill)
+ Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        image: const DecorationImage(
+                          image: AssetImage('assets/images/logoyasuni.png'),
+                          fit: BoxFit.contain, // Mantiene las proporciones
+                        ),
+                      ),
+                    ),
+                  ),
                 
-                ),
-              ),),
-
-
+              
+            
+// Positioned(
+//   width:300,
+ 
+//   child: Container(
+//   decoration:  const BoxDecoration(image:DecorationImage(  image:AssetImage('assets/images/logoyasuni.png'),)) ),
+// )
               
             ],
           ),
         ),
           Padding(padding: const EdgeInsets.all(16.0),
           child: Column(children: [
+         
+            
               
-             const Text("LOGIN ",style: TextStyle(color: Colors.deepPurpleAccent,fontWeight: FontWeight.bold,fontSize:30 ),),
+             const Text("LOGIN ",style: TextStyle(color: Colors.tealAccent,fontWeight: FontWeight.bold,fontSize:30 ),),
             TextField(controller: _cedulaController, decoration: const InputDecoration(labelText: 'cedula '),keyboardType: TextInputType.text,),
             TextField(controller: _passwordControler ,decoration: const InputDecoration(labelText: 'Password'),obscureText: true,),
               const SizedBox(height:16 ),
@@ -168,7 +182,7 @@ height:400,
               :ElevatedButton(             
                 onPressed: _login,
                 
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurpleAccent),
+                style: ElevatedButton.styleFrom(backgroundColor:Colors.tealAccent),
                 child: const Text('Iniciar Sesión' ,style: TextStyle(color:Colors.black),),    
               ),
               
