@@ -33,7 +33,7 @@ if(cedula.isEmpty || password.isEmpty){
   return;
 }
 
-  final String url ='http://10.191.67.81:3000/usuario/login';
+  final String url ='http://10.195.243.233:3002/usuario/login';
 
   setState(() {
     _isLoading=true;
