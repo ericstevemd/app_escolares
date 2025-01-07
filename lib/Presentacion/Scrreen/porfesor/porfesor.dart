@@ -10,6 +10,10 @@ class Porfesor extends StatefulWidget {
 class _PorfesorState extends State<Porfesor> {
   @override
   Widget build(BuildContext context) {
-    return Text('profesor');
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profesor')),
+
+     
+    );
   }
 }

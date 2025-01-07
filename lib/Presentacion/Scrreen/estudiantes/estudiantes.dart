@@ -12,6 +12,21 @@ class Estudiantes extends StatefulWidget {
 class _EstudiantesState extends State<Estudiantes> {
   @override
   Widget build(BuildContext context) {
-    return const Text('estudiante');
+    return Scaffold(
+      appBar: AppBar(title: const Text('Estudiantes '),
+      
+      ),
+drawer: Drawer(
+  child: ListView(
+    children: [
+      ListTile(
+        title: Text('data'),
+      )
+    ],
+  ),
+
+),
+
+    );
   }
 }

@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 class Estudianteservice {
 
-  final String baseUrl= 'http://10.195.243.233:3002/estudiantes';
+  final String baseUrl= 'http://192.168.100.53:3002/estudiantes';
 
 
 //Crear un estudiantes 

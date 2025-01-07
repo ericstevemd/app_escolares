@@ -33,7 +33,7 @@ if(cedula.isEmpty || password.isEmpty){
   return;
 }
 
-  final String url ='http://10.195.243.233:3002/usuario/login';
+  final String url ='http://192.168.100.53:3002/usuario/login';
 
   setState(() {
     _isLoading=true;
@@ -123,74 +123,74 @@ else if(userType=='REPRESENTANTE'){
     final width =MediaQuery.of(context).size.width;
     return Scaffold( 
       backgroundColor: Colors.white,
-          body: Wrap(
-        children: [Container(
-
-height:400,
-          child: Stack(
-            children: [
-              Positioned(
-                top:-40,
-      height: 400,
-      width: width +20 ,
-    child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(image:AssetImage('assets/images/background-3.png'),fit: BoxFit.fill)
-                
-                ),
-              ),),
-
- Align(
-                    alignment: Alignment.center,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/images/logoyasuni.png'),
-                          fit: BoxFit.contain, // Mantiene las proporciones
+          body: SingleChildScrollView(
+            reverse: true,
+            child: Wrap(
+                    children: [Container(
+            
+            height:400,
+            child: Stack(
+              children: [
+                Positioned(
+                  top:-40,
+                  height: 400,
+                  width: width +20 ,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(image:AssetImage('assets/images/background-3.png'),fit: BoxFit.fill)
+                  
+                  ),
+                ),),
+            
+             Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/logoyasuni.png'),
+                            fit: BoxFit.contain, // Mantiene las proporciones
+                          ),
                         ),
                       ),
                     ),
+                  
+                
+              
+            // Positioned(
+            //   width:300,
+             
+            //   child: Container(
+            //   decoration:  const BoxDecoration(image:DecorationImage(  image:AssetImage('assets/images/logoyasuni.png'),)) ),
+            // )
+                
+              ],
+            ),
+                    ),
+            Padding(padding: const EdgeInsets.all(16.0),
+            child: Column(children: [           
+               const Text("LOGIN ",style: TextStyle(color: Colors.tealAccent,fontWeight: FontWeight.bold,fontSize:30 ),),
+              TextField(controller: _cedulaController, decoration: const InputDecoration(labelText: 'cedula '),keyboardType: TextInputType.text,),
+              TextField(controller: _passwordControler ,decoration: const InputDecoration(labelText: 'Password'),obscureText: true,),
+                const SizedBox(height:16 ),
+                _isLoading
+                ?const CircularProgressIndicator()
+                
+                :ElevatedButton(             
+                  onPressed: _login,
+                  
+                  style: ElevatedButton.styleFrom(backgroundColor:Colors.tealAccent),
+                  child: const Text('Iniciar Sesión' ,style: TextStyle(color:Colors.black),),    
+                ),
+                
+            
+            
+                 ]),),
+                    ],
                   ),
-                
-              
-            
-// Positioned(
-//   width:300,
- 
-//   child: Container(
-//   decoration:  const BoxDecoration(image:DecorationImage(  image:AssetImage('assets/images/logoyasuni.png'),)) ),
-// )
-              
-            ],
           ),
-        ),
-          Padding(padding: const EdgeInsets.all(16.0),
-          child: Column(children: [
-         
-            
-              
-             const Text("LOGIN ",style: TextStyle(color: Colors.tealAccent,fontWeight: FontWeight.bold,fontSize:30 ),),
-            TextField(controller: _cedulaController, decoration: const InputDecoration(labelText: 'cedula '),keyboardType: TextInputType.text,),
-            TextField(controller: _passwordControler ,decoration: const InputDecoration(labelText: 'Password'),obscureText: true,),
-              const SizedBox(height:16 ),
-              _isLoading
-              ?const CircularProgressIndicator()
-              
-              :ElevatedButton(             
-                onPressed: _login,
-                
-                style: ElevatedButton.styleFrom(backgroundColor:Colors.tealAccent),
-                child: const Text('Iniciar Sesión' ,style: TextStyle(color:Colors.black),),    
-              ),
-              
-          
-          
-               ]),),
-        ],
-      ),
       
     );
   }

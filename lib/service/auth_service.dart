@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
 
 
-  final String BaseUrl='http://10.195.243.233:3002/usuario/login';
+  final String BaseUrl='http://192.168.100.53:3002/usuario/login';
 
   Future<void>login(String usuario, String password,)async{
     final response=await http.post(Uri.parse(BaseUrl),
