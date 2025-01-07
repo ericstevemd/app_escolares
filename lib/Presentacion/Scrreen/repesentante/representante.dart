@@ -10,6 +10,6 @@ class Representante extends StatefulWidget {
 class _RepresentanteState extends State<Representante> {
   @override
   Widget build(BuildContext context) {
-    return Text('respresentantes ');
+    return const Text('respresentantes ');
   }
 }
