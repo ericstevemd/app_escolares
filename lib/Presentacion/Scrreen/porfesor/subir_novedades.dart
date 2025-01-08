@@ -7,7 +7,7 @@ class SubirNovedades extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('subir novedades r'),
+        title: const Text('subir novedades'),
       ),
     );
   }

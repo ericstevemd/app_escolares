@@ -1,126 +1,73 @@
+// To parse this JSON data, do
+//
+//     final login = loginFromJson(jsonString);
 
 import 'dart:convert';
 
-Welcome welcomeFromJson(String str) => Welcome.fromJson(json.decode(str));
+List<Login> loginFromJson(String str) => List<Login>.from(json.decode(str).map((x) => Login.fromJson(x)));
 
-String welcomeToJson(Welcome data) => json.encode(data.toJson());
+String loginToJson(List<Login> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-class Welcome {
-    List<Datum> data;
-    Meta meta;
+class Login {
+    String message;
+    String token;
+    String cedula;
+    String email;
+    String userType;
+    bool isProfessor;
+    List<ProfesorInfo> profesorInfo;
 
-    Welcome({
-        required this.data,
-        required this.meta,
+    Login({
+        required this.message,
+        required this.token,
+        required this.cedula,
+        required this.email,
+        required this.userType,
+        required this.isProfessor,
+        required this.profesorInfo,
     });
 
-    factory Welcome.fromJson(Map<String, dynamic> json) => Welcome(
-        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
-        meta: Meta.fromJson(json["meta"]),
+    factory Login.fromJson(Map<String, dynamic> json) => Login(
+        message: json["message"],
+        token: json["token"],
+        cedula: json["cedula"],
+        email: json["email"],
+        userType: json["userType"],
+        isProfessor: json["isProfessor"],
+        profesorInfo: List<ProfesorInfo>.from(json["profesorInfo"].map((x) => ProfesorInfo.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
-        "data": List<dynamic>.from(data.map((x) => x.toJson())),
-        "meta": meta.toJson(),
+        "message": message,
+        "token": token,
+        "cedula": cedula,
+        "email": email,
+        "userType": userType,
+        "isProfessor": isProfessor,
+        "profesorInfo": List<dynamic>.from(profesorInfo.map((x) => x.toJson())),
     };
 }
 
-class Datum {
+class ProfesorInfo {
     int id;
+    String nombre;
     String cedula;
-    String correo;
-    String password;
-    Rol rol;
-    bool sesionIniciada;
-    int profesorId;
-    bool isDeleted;
-    dynamic resetCode;
 
-    Datum({
+    ProfesorInfo({
         required this.id,
+        required this.nombre,
         required this.cedula,
-        required this.correo,
-        required this.password,
-        required this.rol,
-        required this.sesionIniciada,
-        required this.profesorId,
-        required this.isDeleted,
-        required this.resetCode,
     });
 
-    factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+    factory ProfesorInfo.fromJson(Map<String, dynamic> json) => ProfesorInfo(
         id: json["id"],
+        nombre: json["nombre"],
         cedula: json["cedula"],
-        correo: json["correo"],
-        password: json["password"],
-        rol: rolValues.map[json["rol"]]!,
-        sesionIniciada: json["sesionIniciada"],
-        profesorId: json["profesorId"],
-        isDeleted: json["isDeleted"],
-        resetCode: json["resetCode"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
+        "nombre": nombre,
         "cedula": cedula,
-        "correo": correo,
-        "password": password,
-        "rol": rolValues.reverse[rol],
-        "sesionIniciada": sesionIniciada,
-        "profesorId": profesorId,
-        "isDeleted": isDeleted,
-        "resetCode": resetCode,
     };
-}
-
-enum Rol {
-    ADMIN,
-    ESTUDIANTE,
-    PROFESOR
-}
-
-final rolValues = EnumValues({
-    "ADMIN": Rol.ADMIN,
-    "ESTUDIANTE": Rol.ESTUDIANTE,
-    "PROFESOR": Rol.PROFESOR
-});
-
-class Meta {
-    int total;
-    int page;
-    int limit;
-    int totalPages;
-
-    Meta({
-        required this.total,
-        required this.page,
-        required this.limit,
-        required this.totalPages,
-    });
-
-    factory Meta.fromJson(Map<String, dynamic> json) => Meta(
-        total: json["total"],
-        page: json["page"],
-        limit: json["limit"],
-        totalPages: json["totalPages"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "total": total,
-        "page": page,
-        "limit": limit,
-        "totalPages": totalPages,
-    };
-}
-
-class EnumValues<T> {
-    Map<String, T> map;
-    late Map<T, String> reverseMap;
-
-    EnumValues(this.map);
-
-    Map<T, String> get reverse {
-            reverseMap = map.map((k, v) => MapEntry(v, k));
-            return reverseMap;
-    }
 }

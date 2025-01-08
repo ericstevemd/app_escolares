@@ -7,12 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 //import '../../../config/map.login.dart';
+
 class Loginscreen extends StatefulWidget {
   const Loginscreen({super.key});
 
   @override
   State<Loginscreen> createState() => _LoginscreenState();
 }
+dynamic Login;
 class _LoginscreenState extends State<Loginscreen> {
   
   final _cedulaController =TextEditingController();
@@ -56,6 +58,8 @@ if(cedula.isEmpty || password.isEmpty){
       }
 
       final token=data['token'];
+      final profesorInfo = data['profesorInfo'];
+    
 
       if (token != null) {
         // Guarda el token en SharedPreferences
@@ -70,7 +74,6 @@ if(cedula.isEmpty || password.isEmpty){
        ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Inicio de sesión exitoso.')),
        );
-
 if(userType== 'ADMIN'){
 Navigator.of (context).push(
   MaterialPageRoute(builder: (context)=> Administrador( userCedula: cedula))
@@ -79,7 +82,8 @@ Navigator.of (context).push(
 }else if (userType== 'PROFESOR'){
 
   Navigator.of (context).push(
-  MaterialPageRoute(builder: (context)=> const Porfesor ())
+  MaterialPageRoute(builder: (context)=> Porfesor (  nombre: profesorInfo?[0]['nombre'] ?? '', // Asume que es un array
+          correo: data['email'] ?? '', ))
 );
 
 }
