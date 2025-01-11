@@ -80,10 +80,10 @@ Navigator.of (context).push(
 );
 
 }else if (userType== 'PROFESOR'){
-
+ final profesorId = data['profesorInfo']?[0]['id'] ?? ''; 
   Navigator.of (context).push(
   MaterialPageRoute(builder: (context)=> Porfesor (  nombre: profesorInfo?[0]['nombre'] ?? '', // Asume que es un array
-          correo: data['email'] ?? '', ))
+          correo: data['email'] ?? '',profesorId: profesorId ))
 );
 
 }
