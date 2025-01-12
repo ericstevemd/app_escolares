@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:app_escolares/Presentacion/Scrreen/administrador/administrador.dart';
 import 'package:app_escolares/Presentacion/Scrreen/estudiantes/estudiantes.dart';
-import 'package:app_escolares/Presentacion/Scrreen/porfesor/porfesor.dart';
+import 'package:app_escolares/Presentacion/Scrreen/porfesor/profesor.dart';
 import 'package:app_escolares/Presentacion/Scrreen/repesentante/representante.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -52,6 +52,7 @@ if(cedula.isEmpty || password.isEmpty){
     // Maneja las respuestas según el código de estado
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(response.body);
+      print(data);
 
  if (data == null || data is! Map) {
         throw Exception('La respuesta de la API no es válida.');
@@ -59,8 +60,7 @@ if(cedula.isEmpty || password.isEmpty){
 
       final token=data['token'];
       final profesorInfo = data['profesorInfo'];
-    
-
+    print(profesorInfo);
       if (token != null) {
         // Guarda el token en SharedPreferences
         final prefs = await SharedPreferences.getInstance();
@@ -82,7 +82,7 @@ Navigator.of (context).push(
 }else if (userType== 'PROFESOR'){
  final profesorId = data['profesorInfo']?[0]['id'] ?? ''; 
   Navigator.of (context).push(
-  MaterialPageRoute(builder: (context)=> Porfesor (  nombre: profesorInfo?[0]['nombre'] ?? '', // Asume que es un array
+  MaterialPageRoute(builder: (context)=> Profesor (  nombre: profesorInfo?[0]['nombre'] ?? '', // Asume que es un array
           correo: data['email'] ?? '',profesorId: profesorId ))
 );
 
