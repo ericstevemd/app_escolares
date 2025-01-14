@@ -61,7 +61,7 @@ class ProfesorNovedadesScreen extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final novedad = novedades[index] as Map<String, dynamic>? ?? {};
                             return ListTile(
-                              leading: const Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+                              leading: const Icon(Icons.add_alert_rounded, color: Colors.redAccent),
                               title: Text(
                                 novedad['tipo_novedade'] ?? 'Sin tipo',
                                 style: const TextStyle(fontWeight: FontWeight.bold),
@@ -81,6 +81,32 @@ class ProfesorNovedadesScreen extends StatelessWidget {
             ),
           );
         },
+
+      ),
+     floatingActionButton: FloatingActionButton(
+       
+        onPressed: () {
+          // Acción para agregar una nueva novedad
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Agregar Novedad'),
+                content: const Text('Función para agregar una nueva novedad.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cerrar'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.add),
+        tooltip: 'Agregar Novedad',
       ),
     );
   }
