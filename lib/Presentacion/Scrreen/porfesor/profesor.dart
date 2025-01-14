@@ -152,7 +152,7 @@ class _ProfesorState extends State<Profesor> {
   List<Widget> _buildDrawerItems() {
     final items = [
       {'icon': Icons.home_outlined, 'text': 'Curso', 'route': ProfesorCursosScreen(profesorId: widget.profesorId)},
-      {'icon': Icons.account_box_sharp, 'text': 'Subir Novedades', 'route': const SubirNovedades()},
+      {'icon': Icons.account_box_sharp, 'text': 'Subir Novedades', 'route': ProfesorNovedadesScreen(profesorId: widget.profesorId)},
       {'icon': Icons.folder, 'text': 'Subir Tarea', 'route': const Tarea()},
       {'icon': Icons.account_box_rounded, 'text': 'Asistencias', 'route': const Asistencias()},
       {'icon': Icons.settings, 'text': 'Ajustes', 'route': const Ajustes()},
