@@ -1,3 +1,4 @@
+import 'package:app_escolares/Presentacion/Scrreen/porfesor/agregarNovedades.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -81,28 +82,14 @@ class ProfesorNovedadesScreen extends StatelessWidget {
             ),
           );
         },
-
       ),
-     floatingActionButton: FloatingActionButton(
-       
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Acción para agregar una nueva novedad
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('Agregar Novedad'),
-                content: const Text('Función para agregar una nueva novedad.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Cerrar'),
-                  ),
-                ],
-              );
-            },
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateNovedadeScreen( profesorId: profesorId),
+            ),
           );
         },
         child: const Icon(Icons.add),
