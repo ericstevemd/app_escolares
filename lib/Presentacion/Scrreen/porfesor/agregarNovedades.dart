@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class CreateNovedadeScreen extends StatefulWidget {
-  final int  profesorId;
-  const CreateNovedadeScreen( {super.key, required this.profesorId});
+  final int profesorId;
+  const CreateNovedadeScreen({super.key, required this.profesorId});
 
   @override
   _CreateNovedadeScreenState createState() => _CreateNovedadeScreenState();
@@ -13,19 +13,26 @@ class CreateNovedadeScreen extends StatefulWidget {
 
 class _CreateNovedadeScreenState extends State<CreateNovedadeScreen> {
   final _formKey = GlobalKey<FormState>();
-  String? tipoNovedade;
-  String? fecha;
-  int? profesorId;
-  String? descripcion;
+  late TextEditingController profesorIdController;
+  TextEditingController tipoNovedadeController = TextEditingController();
+  TextEditingController fechaController = TextEditingController();
+  TextEditingController descripcionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa el controlador con el ID del profesor
+    profesorIdController = TextEditingController(text: widget.profesorId.toString());
+  }
 
   Future<void> createNovedade() async {
     final url = Uri.parse('http://192.168.100.53:3002/novedades'); // Cambia la URL según tu servidor
 
     final body = {
-      "tipo_novedade": tipoNovedade,
-      "fecha": fecha,
-      "profesorId": profesorId,
-      "descricion": descripcion,
+      "tipo_novedade": tipoNovedadeController.text,
+      "fecha": fechaController.text,
+      "profesorId": int.parse(profesorIdController.text), // Obtén el valor del controlador
+      "descricion": descripcionController.text,
     };
 
     try {
@@ -38,8 +45,15 @@ class _CreateNovedadeScreenState extends State<CreateNovedadeScreen> {
       if (response.statusCode == 201) {
         // Si la solicitud es exitosa
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Novedad creada exitosamente')),
+          const SnackBar(content: Text('Novedad creada exitosamente')),
         );
+
+        // Limpia el formulario y redirige al menú principal
+        _formKey.currentState?.reset();
+        tipoNovedadeController.clear();
+        fechaController.clear();
+        descripcionController.clear();
+        Navigator.pop(context); // Redirige al menú principal
       } else {
         // Si hay un error del servidor
         ScaffoldMessenger.of(context).showSnackBar(
@@ -65,31 +79,29 @@ class _CreateNovedadeScreenState extends State<CreateNovedadeScreen> {
           child: ListView(
             children: [
               TextFormField(
+                controller: tipoNovedadeController,
                 decoration: const InputDecoration(labelText: 'Tipo de Novedad'),
-                onSaved: (value) => tipoNovedade = value,
                 validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
               ),
               TextFormField(
+                controller: fechaController,
                 decoration: const InputDecoration(labelText: 'Fecha (YYYY-MM-DD)'),
-                onSaved: (value) => fecha = value,
                 validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
               ),
               TextFormField(
+                controller: profesorIdController,
                 decoration: const InputDecoration(labelText: 'ID del Profesor'),
-                keyboardType: TextInputType.number,
-                onSaved: (value) => profesorId = int.tryParse(value ?? ''),
-                validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
+                readOnly: true, // Hace que el campo no sea editable
               ),
               TextFormField(
+                controller: descripcionController,
                 decoration: const InputDecoration(labelText: 'Descripción'),
-                onSaved: (value) => descripcion = value,
                 validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() == true) {
-                    _formKey.currentState?.save();
                     createNovedade();
                   }
                 },
