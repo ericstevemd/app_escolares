@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class Tarea extends StatelessWidget {
-  const Tarea({super.key});
+class ActividadScreen extends StatelessWidget {
+  const ActividadScreen({super.key, required int profesorId});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('Tarea'),),);
+    return Container();
   }
 }
