@@ -2,9 +2,10 @@ import 'package:app_escolares/Presentacion/Scrreen/porfesor/materia.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-import 'Ajustes.dart';
+
 import 'asistencias.dart';
 import 'Curso.dart';
 import 'subir_novedades.dart';
@@ -36,7 +37,14 @@ class _ProfesorState extends State<Profesor> {
     super.initState();
     _fetchMaterias();
   }
+Future<void> logout(BuildContext context) async {
+  // Elimina el token o los datos de sesión de SharedPreferences
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('token'); // O el nombre de la clave que uses para almacenar el token
 
+  // Redirige a la pantalla de inicio de sesión
+  Navigator.pushReplacementNamed(context, '/login'); // Asegúrate de tener configurada la ruta /login
+}
   Future<void> _fetchMaterias() async {
     final url = 'http://192.168.100.53:3002/profesor/${widget.profesorId}/materias';
     try {
@@ -129,8 +137,8 @@ class _ProfesorState extends State<Profesor> {
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Cerrar Sesión'),
             onTap: () {
-              Navigator.pop(context);
-              // Lógica de cierre de sesión aquí
+            Navigator.pop(context); // Cierra el drawer
+              logout(context); // L
             },
           ),
         ],
@@ -157,7 +165,6 @@ class _ProfesorState extends State<Profesor> {
       {'icon': Icons.account_box_sharp, 'text': 'Subir Novedades', 'route': ProfesorNovedadesScreen(profesorId: widget.profesorId)},
       {'icon': Icons.folder, 'text': 'Subir Tarea', 'route':  MateriasScreen(profesorId: widget.profesorId)},
       {'icon': Icons.account_box_rounded, 'text': 'Asistencias', 'route': const Asistencias()},
-      {'icon': Icons.settings, 'text': 'Ajustes', 'route': const Ajustes()},
     ];
 
     return items
