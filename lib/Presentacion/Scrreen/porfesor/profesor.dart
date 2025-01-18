@@ -1,15 +1,11 @@
+import 'package:app_escolares/Presentacion/Scrreen/porfesor/Curso.dart';
+import 'package:app_escolares/Presentacion/Scrreen/porfesor/asistencias.dart';
 import 'package:app_escolares/Presentacion/Scrreen/porfesor/materia.dart';
-
+import 'package:app_escolares/Presentacion/Scrreen/porfesor/subir_novedades.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
-
-import 'asistencias.dart';
-import 'Curso.dart';
-import 'subir_novedades.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profesor extends StatefulWidget {
   final String nombre;
@@ -37,24 +33,16 @@ class _ProfesorState extends State<Profesor> {
     super.initState();
     _fetchMaterias();
   }
-Future<void> logout(BuildContext context) async {
-  // Elimina el token o los datos de sesión de SharedPreferences
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove('token'); // O el nombre de la clave que uses para almacenar el token
 
-  // Redirige a la pantalla de inicio de sesión
-  Navigator.pushReplacementNamed(context, '/login'); // Asegúrate de tener configurada la ruta /login
-}
   Future<void> _fetchMaterias() async {
     final url = 'http://192.168.100.53:3002/profesor/${widget.profesorId}/materias';
     try {
       final response = await http.get(Uri.parse(url));
-          print('Código de respuesta HTTP: ${response.statusCode}');
-
+      print('Código de respuesta HTTP: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final List<dynamic> materias = json.decode(response.body);
-              print('Materias obtenidas del servidor: $materias');
+        print('Materias obtenidas del servidor: $materias');
 
         setState(() {
           _materias = materias
@@ -63,7 +51,7 @@ Future<void> logout(BuildContext context) async {
           _isLoading = false;
         });
       } else {
-          print('Error: Código de respuesta inesperado ${response.statusCode}');
+        print('Error: Código de respuesta inesperado ${response.statusCode}');
         _showSnackBar('Error al obtener las materias: ${response.statusCode}');
       }
     } catch (e) {
@@ -77,7 +65,44 @@ Future<void> logout(BuildContext context) async {
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }Future<void> logout(BuildContext context) async {
+  // Confirmar con el usuario si realmente quiere cerrar sesión
+  bool confirmLogout = await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Cerrar sesión'),
+      content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(false); // No cierra sesión
+          },
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(true); // Cierra sesión
+          },
+          child: const Text('Aceptar'),
+        ),
+      ],
+    ),
+  ) ?? false;
+
+  if (confirmLogout) {
+    // Elimina el token o los datos de sesión de SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token'); // O el nombre de la clave que uses para almacenar el token
+
+    // Mostrar un SnackBar confirmando que se cerró sesión
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Sesión cerrada correctamente')),
+    );
+
+    // Redirige a la pantalla de inicio de sesión
+    Navigator.pushReplacementNamed(context, '/login'); // Asegúrate de tener configurada la ruta /login
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +162,8 @@ Future<void> logout(BuildContext context) async {
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Cerrar Sesión'),
             onTap: () {
-            Navigator.pop(context); // Cierra el drawer
-              logout(context); // L
+              Navigator.pop(context); // Cierra el drawer
+              logout(context); // Llama al método logout para cerrar la sesión
             },
           ),
         ],
@@ -231,3 +256,4 @@ class MateriaDetailScreen extends StatelessWidget {
     );
   }
 }
+
