@@ -2,9 +2,8 @@ import 'package:app_escolares/Presentacion/Scrreen/porfesor/Curso.dart';
 import 'package:app_escolares/Presentacion/Scrreen/porfesor/asistencias.dart';
 import 'package:app_escolares/Presentacion/Scrreen/porfesor/materia.dart';
 import 'package:app_escolares/Presentacion/Scrreen/porfesor/subir_novedades.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profesor extends StatefulWidget {
@@ -25,84 +24,51 @@ class Profesor extends StatefulWidget {
 
 class _ProfesorState extends State<Profesor> {
   int _selectedIndex = 0;
-  List<dynamic> _materias = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchMaterias();
-  }
-
-  Future<void> _fetchMaterias() async {
-    final url = 'http://192.168.100.53:3002/profesor/${widget.profesorId}/materias';
-    try {
-      final response = await http.get(Uri.parse(url));
-      print('Código de respuesta HTTP: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> materias = json.decode(response.body);
-        print('Materias obtenidas del servidor: $materias');
-
-        setState(() {
-          _materias = materias
-              .where((materia) => materia is Map && materia['nombreMateria'] != null)
-              .toList();
-          _isLoading = false;
-        });
-      } else {
-        print('Error: Código de respuesta inesperado ${response.statusCode}');
-        _showSnackBar('Error al obtener las materias: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error capturado durante la solicitud: $e');
-      _showSnackBar('Error al cargar materias. Verifica tu conexión.');
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }Future<void> logout(BuildContext context) async {
-  // Confirmar con el usuario si realmente quiere cerrar sesión
-  bool confirmLogout = await showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Cerrar sesión'),
-      content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(false); // No cierra sesión
-          },
-          child: const Text('Cancelar'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(true); // Cierra sesión
-          },
-          child: const Text('Aceptar'),
-        ),
-      ],
-    ),
-  ) ?? false;
-
-  if (confirmLogout) {
-    // Elimina el token o los datos de sesión de SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token'); // O el nombre de la clave que uses para almacenar el token
-
-    // Mostrar un SnackBar confirmando que se cerró sesión
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sesión cerrada correctamente')),
-    );
-
-    // Redirige a la pantalla de inicio de sesión
-    Navigator.pushReplacementNamed(context, '/login'); // Asegúrate de tener configurada la ruta /login
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
-}
+
+  Future<void> logout(BuildContext context) async {
+    bool confirmLogout = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Cerrar sesión'),
+            content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Aceptar'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (confirmLogout) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sesión cerrada correctamente')),
+      );
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/Loginscreen',
+        (Route<dynamic> route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,41 +77,26 @@ class _ProfesorState extends State<Profesor> {
         title: Text('Profesor ${widget.nombre}'),
       ),
       drawer: _buildDrawer(),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _materias.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No hay materias disponibles.',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                )
-              : _buildMateriasList(),
-    );
-  }
-
-  Widget _buildMateriasList() {
-    return ListView.builder(
-      itemCount: _materias.length,
-      itemBuilder: (context, index) {
-        final materia = _materias[index];
-        return ListTile(
-          title: Text(
-            materia['nombreMateria'] ?? 'Sin nombre',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const Text(
+                'Gráfico de Barras',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 300, child: _buildBarChart()),
+              const SizedBox(height: 16),
+              const Text(
+                'Gráfico de Pastel',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 300, child: _buildPieChart()),
+            ],
           ),
-          subtitle: Text(
-            'ID: ${materia['id']}',
-            style: const TextStyle(color: Colors.grey),
-          ),
-          leading: const Icon(Icons.book, color: Colors.blueAccent),
-          onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => MateriaDetailScreen(materia: materia),
-            ));
-          },
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -162,8 +113,8 @@ class _ProfesorState extends State<Profesor> {
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Cerrar Sesión'),
             onTap: () {
-              Navigator.pop(context); // Cierra el drawer
-              logout(context); // Llama al método logout para cerrar la sesión
+              Navigator.pop(context);
+              logout(context);
             },
           ),
         ],
@@ -186,10 +137,26 @@ class _ProfesorState extends State<Profesor> {
 
   List<Widget> _buildDrawerItems() {
     final items = [
-      {'icon': Icons.home_outlined, 'text': 'Curso', 'route': ProfesorCursosScreen(profesorId: widget.profesorId)},
-      {'icon': Icons.account_box_sharp, 'text': 'Subir Novedades', 'route': ProfesorNovedadesScreen(profesorId: widget.profesorId)},
-      {'icon': Icons.folder, 'text': 'Subir Tarea', 'route':  MateriasScreen(profesorId: widget.profesorId)},
-      {'icon': Icons.account_box_rounded, 'text': 'Asistencias', 'route': const Asistencias()},
+      {
+        'icon': Icons.home_outlined,
+        'text': 'Curso',
+        'route': ProfesorCursosScreen(profesorId: widget.profesorId)
+      },
+      {
+        'icon': Icons.account_box_sharp,
+        'text': 'Subir Novedades',
+        'route': ProfesorNovedadesScreen(profesorId: widget.profesorId)
+      },
+      {
+        'icon': Icons.folder,
+        'text': 'Subir Tarea',
+        'route': MateriasScreen(profesorId: widget.profesorId)
+      },
+      {
+        'icon': Icons.account_box_rounded,
+        'text': 'Asistencias',
+        'route': AsistenciaScreen()
+      },
     ];
 
     return items
@@ -219,41 +186,79 @@ class _ProfesorState extends State<Profesor> {
           _selectedIndex = index;
         });
         Navigator.pop(context);
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => route));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => route));
       },
     );
   }
-}
-
-class MateriaDetailScreen extends StatelessWidget {
-  final Map<String, dynamic> materia;
-
-  const MateriaDetailScreen({Key? key, required this.materia}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Detalle de ${materia['nombreMateria']}'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Materia: ${materia['nombreMateria']}',
-              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'ID: ${materia['id']}',
-              style: const TextStyle(fontSize: 20),
-            ),
-          ],
+Widget _buildBarChart() {
+  return BarChart(
+    BarChartData(
+      borderData: FlBorderData(show: false),
+      titlesData: FlTitlesData(
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: (value, meta) {
+              switch (value.toInt()) {
+                case 0:
+                  return const Text('Asistencias');
+                case 1:
+                  return const Text('Estudiantes');
+                case 2:
+                  return const Text('Materias');
+                default:
+                  return const Text('');
+              }
+            },
+          ),
         ),
       ),
-    );
-  }
+      barGroups: [
+        BarChartGroupData(
+          x: 0,
+          barRods: [BarChartRodData(toY: 50, color: Colors.green)],
+        ),
+        BarChartGroupData(
+          x: 1,
+          barRods: [BarChartRodData(toY: 120, color: Colors.blue)],
+        ),
+        BarChartGroupData(
+          x: 2,
+          barRods: [BarChartRodData(toY: 5, color: Colors.orange)],
+        ),
+      ],
+    ),
+  );
 }
 
+Widget _buildPieChart() {
+  return PieChart(
+    PieChartData(
+      sections: [
+        PieChartSectionData(
+          value: 40,
+          color: Colors.blue,
+          title: '40%',
+        ),
+        PieChartSectionData(
+          value: 30,
+          color: Colors.red,
+          title: '30%',
+        ),
+        PieChartSectionData(
+          value: 30,
+          color: Colors.green,
+          title: '30%',
+        ),
+      ],
+      centerSpaceRadius: 40,
+    ),
+  );
+}
+
+
+}
