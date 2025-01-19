@@ -25,10 +25,6 @@ class Profesor extends StatefulWidget {
 class _ProfesorState extends State<Profesor> {
   int _selectedIndex = 0;
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
 
   Future<void> logout(BuildContext context) async {
     bool confirmLogout = await showDialog(
