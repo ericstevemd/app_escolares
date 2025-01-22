@@ -35,7 +35,7 @@ if(cedula.isEmpty || password.isEmpty){
   return;
 }
 
-  final String url ='http://192.168.100.53:3002/usuario/login';
+  final String url ='http://192.168.100.53:3002/usuario/login'; //cambiar la ip 
 
   setState(() {
     _isLoading=true;

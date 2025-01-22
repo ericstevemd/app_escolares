@@ -1,5 +1,7 @@
 import 'dart:io'; // Necesario para manejar rutas locales de archivos
+import 'package:app_escolares/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -17,29 +19,58 @@ class _ActividadesScreenState extends State<ActividadesScreen> {
     super.initState();
     fetchActividades();
   }
+Future<void> fetchActividades() async {
+  final url = Uri.parse('http://192.168.100.53:3002/actividad/'); // Cambiar la IP
+  try {
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        actividades = data;
+        isLoading = false;
+      });
 
-  Future<void> fetchActividades() async {
-    final url = Uri.parse('http://192.168.100.53:3002/actividad/');
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        setState(() {
-          actividades = json.decode(response.body);
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        throw Exception('Error al cargar actividades');
-      }
-    } catch (e) {
+      // Mostrar una notificación al cargar actividades
+      await showNotification(
+        'Actividades cargadas',
+        'Se han cargado ${actividades.length} actividades.',
+      );
+    } else {
       setState(() {
         isLoading = false;
       });
-      print('Error: $e');
+      throw Exception('Error al cargar actividades');
     }
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    print('Error: $e');
   }
+}
+
+
+
+  Future<void> showNotification(String title, String body) async {
+  const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    'channel_id',
+    'Actividades Notifications',
+    channelDescription: 'Notificaciones de actividades',
+    importance: Importance.max,
+    priority: Priority.high,
+  );
+
+  const NotificationDetails platformDetails =
+      NotificationDetails(android: androidDetails);
+
+  await flutterLocalNotificationsPlugin.show(
+    0, // ID único para la notificación
+    title,
+    body,
+    platformDetails,
+  );
+}
+
 
   Widget _buildImage(String? imageUrl) {
     if (imageUrl == null) {
@@ -107,15 +138,19 @@ class _ActividadesScreenState extends State<ActividadesScreen> {
                                     fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  DetallesActividadScreen(actividad: actividad),
-                            ),
-                          );
-                        },
+                       onTap: () async {
+  await showNotification(
+    'Actividad seleccionada',
+    'Has seleccionado: ${actividad['nombre']}',
+  );
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => DetallesActividadScreen(actividad: actividad),
+    ),
+  );
+},
                       ),
                     );
                   },
