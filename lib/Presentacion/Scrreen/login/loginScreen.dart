@@ -35,7 +35,7 @@ if(cedula.isEmpty || password.isEmpty){
   return;
 }
 
-  final String url ='http://192.168.100.53:3002/usuario/login'; //cambiar la ip 
+  final String url ='http://158.220.124.141:3002/usuario/login'; //cambiar la ip 
 
   setState(() {
     _isLoading=true;
@@ -59,7 +59,7 @@ if(cedula.isEmpty || password.isEmpty){
       }
 
       final token=data['token'];
-      final profesorInfo = data['profesorInfo'];
+      var profesorInfo = data['profesorInfo'];
     print(profesorInfo);
       if (token != null) {
         // Guarda el token en SharedPreferences
@@ -82,14 +82,19 @@ Navigator.of (context).push(
 }else if (userType== 'PROFESOR'){
  final profesorId = data['profesorInfo']?[0]['id'] ?? ''; 
   Navigator.of (context).push(
-  MaterialPageRoute(builder: (context)=> Profesor (  nombre: profesorInfo?[0]['nombre'] ?? '', // Asume que es un array
-          correo: data['email'] ?? '',profesorId: profesorId ))
+  MaterialPageRoute(builder: (context)=> Profesor (
+      nombre: profesorInfo?[0]['nombre'] ?? '', // Asume que es un array
+      correo: data['email'] ?? '',profesorId: profesorId ))
 );
 
 }
 else if(userType=='REPRESENTANTE'){
+ // final representativeInfo = data['representativeInfo'];
+///final representativeId = representativeInfo?[0]['id'] ?? '';
   Navigator.of (context).push(
-  MaterialPageRoute(builder: (context)=> const Representante ())
+  MaterialPageRoute(builder: (context)=>  const Representante()
+       ,
+    ),
 );
 
 

@@ -21,7 +21,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.100.53:3002/asistencia/'),
+        Uri.parse('http://158.220.124.141:3002/asistencia/'),
       );
 
       if (response.statusCode == 200) {
@@ -46,7 +46,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
 
   // Función para actualizar el estado
   Future<void> updateEstado(int id, String nuevoEstado) async {
-    final url = Uri.parse('http://192.168.100.53:3002/asistencia/$id');
+    final url = Uri.parse('http:// 10.195.243.180:3002/asistencia/$id');
     try {
       final response = await http.patch(
         url,

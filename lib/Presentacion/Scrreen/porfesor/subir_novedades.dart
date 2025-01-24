@@ -99,7 +99,7 @@ class ProfesorNovedadesScreen extends StatelessWidget {
   }
 
   Future<Map<String, dynamic>> fetchProfesorWithNovedades(int id) async {
-    final url = Uri.parse('http://192.168.100.53:3002/profesor/$id/novedades');
+    final url = Uri.parse('http://158.220.124.141:3002/profesor/$id/novedades');
     try {
       final response = await http.get(url);
 

@@ -26,7 +26,7 @@ class _CreateNovedadeScreenState extends State<CreateNovedadeScreen> {
   }
 
   Future<void> createNovedade() async {
-    final url = Uri.parse('http://192.168.100.53:3002/novedades'); // Cambia la URL según tu servidor
+    final url = Uri.parse('http://158.220.124.141:3002/novedades'); // Cambia la URL según tu servidor
 
     final body = {
       "tipo_novedade": tipoNovedadeController.text,

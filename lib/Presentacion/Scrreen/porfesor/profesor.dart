@@ -1,3 +1,4 @@
+import 'package:app_escolares/Presentacion/Scrreen/login/loginScreen.dart';
 import 'package:app_escolares/Presentacion/Scrreen/porfesor/Curso.dart';
 import 'package:app_escolares/Presentacion/Scrreen/porfesor/asistencias.dart';
 import 'package:app_escolares/Presentacion/Scrreen/porfesor/materia.dart';
@@ -26,45 +27,39 @@ class _ProfesorState extends State<Profesor> {
   int _selectedIndex = 0;
 
 
-  Future<void> logout(BuildContext context) async {
-    bool confirmLogout = await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Cerrar sesión'),
-            content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: const Text('Cancelar'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('Aceptar'),
-              ),
-            ],
+ void _logout(BuildContext context) async {
+  // Mostrar un cuadro de diálogo de confirmación
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Cerrar sesión"),
+        content: const Text("¿Estás seguro de que deseas cerrar sesión?"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+            },
+            child: const Text("Cancelar"),
           ),
-        ) ??
-        false;
+          TextButton(
+            onPressed: () async {
+              // Limpiar el token de autenticación de SharedPreferences
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('token');
 
-    if (confirmLogout) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('token');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sesión cerrada correctamente')),
+              // Navegar a la pantalla de inicio de sesión
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const Loginscreen()),
+              );
+            },
+            child: const Text("Cerrar sesión"),
+          ),
+        ],
       );
-
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/Loginscreen',
-        (Route<dynamic> route) => false,
-      );
-    }
-  }
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +101,11 @@ class _ProfesorState extends State<Profesor> {
           ..._buildDrawerItems(),
           const Divider(color: Colors.black54),
           ListTile(
-            leading: const Icon(Icons.exit_to_app),
-            title: const Text('Cerrar Sesión'),
-            onTap: () {
-              Navigator.pop(context);
-              logout(context);
-            },
-          ),
+              leading: const Icon(Icons.logout, color: Colors.redAccent),
+              title: const Text('Cerrar sesión'),
+              onTap: () {
+                _logout(context);
+              },)
         ],
       ),
     );

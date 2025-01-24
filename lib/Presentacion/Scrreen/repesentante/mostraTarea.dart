@@ -20,7 +20,7 @@ class _ActividadesScreenState extends State<ActividadesScreen> {
     fetchActividades();
   }
 Future<void> fetchActividades() async {
-  final url = Uri.parse('http://192.168.100.53:3002/actividad/'); // Cambiar la IP
+  final url = Uri.parse('http://158.220.124.141:3002/actividad/'); // Cambiar la IP
   try {
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -217,7 +217,7 @@ class DetallesActividadScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Decisión: ${actividad['decision'] ?? 'No disponible'}',
+              'Decisión: ${actividad['descripcion'] ?? 'No disponible'}',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],

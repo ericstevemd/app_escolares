@@ -1,12 +1,53 @@
+import 'package:app_escolares/Presentacion/Scrreen/login/loginScreen.dart';
 import 'package:app_escolares/Presentacion/Scrreen/repesentante/mostraTarea.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Representante extends StatefulWidget {
   const Representante({super.key});
 
+
+
   @override
   State<Representante> createState() => _RepresentanteState();
 }
+void _logout(BuildContext context) async {
+  // Mostrar un cuadro de diálogo de confirmación
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Cerrar sesión"),
+        content: const Text("¿Estás seguro de que deseas cerrar sesión?"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+            },
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Limpiar el token de autenticación de SharedPreferences
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('token');
+
+              // Navegar a la pantalla de inicio de sesión
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const Loginscreen()),
+              );
+            },
+            child: const Text("Cerrar sesión"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+
+
 
 class _RepresentanteState extends State<Representante> {
   @override
@@ -46,8 +87,10 @@ class _RepresentanteState extends State<Representante> {
                       );
                     },
                   ),
+
                 ],
               ),
+
             ),
             // Pie del Drawer
             Padding(
@@ -57,6 +100,13 @@ class _RepresentanteState extends State<Representante> {
                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 textAlign: TextAlign.center,
               ),
+            ),
+             ListTile(
+              leading: const Icon(Icons.logout, color: Colors.redAccent),
+              title: const Text('Cerrar sesión'),
+              onTap: () {
+                _logout(context);
+              },
             ),
           ],
         ),

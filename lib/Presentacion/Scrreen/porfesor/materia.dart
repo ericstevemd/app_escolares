@@ -85,7 +85,7 @@ class MateriasScreen extends StatelessWidget {
   }
 
   Future<List<dynamic>> fetchMaterias(int id) async {
-    final url = Uri.parse('http://192.168.100.53:3002/profesor/$id/materias');
+    final url = Uri.parse('http://158.220.124.141:3002/profesor/$id/materias');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -230,7 +230,7 @@ class CrearMateriaScreen extends StatelessWidget {
     int cursoId,
     int profesorId,
   ) async {
-    final url = Uri.parse('http://192.168.100.53:3002/actividad/');
+    final url = Uri.parse('http://192.168.232.8:3002/actividad/');
     final payload = {
       "nombre": name,
       "descripcion": description,
