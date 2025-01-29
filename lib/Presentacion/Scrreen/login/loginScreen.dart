@@ -82,21 +82,24 @@ class _LoginscreenState extends State<Loginscreen> {
           builder: (context) => Profesor(
             nombre: profesorInfo?['nombre'] ?? '',
             correo: data['email'] ?? '',
-            profesorId: profesorInfo?['id'] ?? '',
+            profesorId: profesorInfo?['id'] ,
           ),
         ));
         break;
-  case 'REPRESENTANTE':
-      final representativeInfo = data['representativeInfo']?[0];
-      if (representativeInfo == null) {
-        _showSnackBar('Información del representante no disponible');
-        return;
-      }
-    
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => Representante(),
-      ));
-      break;
+   case 'REPRESENTANTE':
+   final representativeInfo = data['representativeInfo']?[0];
+  if (representativeInfo == null) {
+    _showSnackBar('Información del representante no disponible');
+    return;
+  }
+  Navigator.of(context).push(MaterialPageRoute(
+    builder: (context) =>  Representante(       
+           nombre: representativeInfo?['nombre'] ?? '',
+            correo: data['email'] ?? '',
+            representanteid: representativeInfo?['id'] ?? '' ),
+  ));
+  break;
+      
       case 'ESTUDIANTE':
         Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Estudiantes()));
         break;

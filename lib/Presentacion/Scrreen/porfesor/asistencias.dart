@@ -11,9 +11,10 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
   List<dynamic> asistenciaList = [];
   bool isLoading = true;
   String? errorMessage;
+  final int profesorId = 1; // ID de ejemplo, modificar según sea necesario
 
   // Función para obtener los datos de la API
-  Future<void> fetchAsistencia() async {
+  Future<void> fetchAsistencia(int id) async {
     setState(() {
       isLoading = true;
       errorMessage = null;
@@ -21,7 +22,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://158.220.124.141:3002/asistencia/'),
+        Uri.parse('http://158.220.124.141:3002/asistencia/$id/profesor/materia/estudiantes'),
       );
 
       if (response.statusCode == 200) {
@@ -46,7 +47,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
 
   // Función para actualizar el estado
   Future<void> updateEstado(int id, String nuevoEstado) async {
-    final url = Uri.parse('http:// 10.195.243.180:3002/asistencia/$id');
+    final url = Uri.parse('http://10.195.243.180:3002/asistencia/$id');
     try {
       final response = await http.patch(
         url,
@@ -56,7 +57,6 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
 
       if (response.statusCode == 200) {
         setState(() {
-          // Actualizar la lista localmente después de la actualización en el servidor
           final index = asistenciaList.indexWhere((asistencia) => asistencia['id'] == id);
           if (index != -1) {
             asistenciaList[index]['estado'] = nuevoEstado;
@@ -77,7 +77,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
   @override
   void initState() {
     super.initState();
-    fetchAsistencia();
+    fetchAsistencia(profesorId);
   }
 
   @override
@@ -92,7 +92,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
         child: Column(
           children: [
             ElevatedButton.icon(
-              onPressed: fetchAsistencia,
+              onPressed: () => fetchAsistencia(profesorId),
               icon: const Icon(Icons.refresh),
               label: const Text('Recargar'),
               style: ElevatedButton.styleFrom(
@@ -145,27 +145,17 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          'Materia: ${asistencia['materia']['nombreMateria']}\nProfesor: ${asistencia['profesor']['nombre']}',
+                          'Materia: ${asistencia['materia']['nombreMateria']} Profesor: ${asistencia['profesor']['nombre']}',
                         ),
                         trailing: PopupMenuButton<String>(
                           onSelected: (nuevoEstado) {
                             updateEstado(asistencia['id'], nuevoEstado);
                           },
                           itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'PRESENTE',
-                              child: Text('PRESENTE'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'AUSENTE',
-                              child: Text('AUSENTE'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'JUSTIFICADO',
-                              child: Text('JUSTIFICADO'),
-                            ),
+                            const PopupMenuItem(value: 'PRESENTE', child: Text('PRESENTE')),
+                            const PopupMenuItem(value: 'AUSENTE', child: Text('AUSENTE')),
+                            const PopupMenuItem(value: 'JUSTIFICADO', child: Text('JUSTIFICADO')),
                           ],
-
                           child: Text(
                             asistencia['estado'],
                             style: TextStyle(

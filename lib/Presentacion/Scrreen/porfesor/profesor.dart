@@ -6,6 +6,8 @@ import 'package:app_escolares/Presentacion/Scrreen/porfesor/subir_novedades.dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Profesor extends StatefulWidget {
   final String nombre;
@@ -25,41 +27,71 @@ class Profesor extends StatefulWidget {
 
 class _ProfesorState extends State<Profesor> {
   int _selectedIndex = 0;
+  List<Map<String, dynamic>> courses = [];
+  bool isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    fetchCourses(widget.profesorId);
+  }
 
- void _logout(BuildContext context) async {
-  // Mostrar un cuadro de diálogo de confirmación
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Cerrar sesión"),
-        content: const Text("¿Estás seguro de que deseas cerrar sesión?"),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
-            },
-            child: const Text("Cancelar"),
-          ),
-          TextButton(
-            onPressed: () async {
-              // Limpiar el token de autenticación de SharedPreferences
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.remove('token');
+  Future<void> fetchCourses(int id) async {
+    final url = Uri.parse('http://158.220.124.141/profesor/$id/materias');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          courses = List<Map<String, dynamic>>.from(data['nombreMateria']);
+          isLoading = false;
+        });
+      } else {
+        _handleError('Error al obtener los datos: ${response.statusCode}');
+      }
+    } catch (e) {
+      _handleError('Error: $e');
+    }
+  }
 
-              // Navegar a la pantalla de inicio de sesión
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const Loginscreen()),
-              );
-            },
-            child: const Text("Cerrar sesión"),
-          ),
-        ],
-      );
-    },
-  );
-}
+  void _handleError(String errorMessage) {
+    setState(() {
+      isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(errorMessage)),
+    );
+  }
+
+  void _logout(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Cerrar sesión"),
+          content: const Text("¿Estás seguro de que deseas cerrar sesión?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.remove('token');
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const Loginscreen()),
+                );
+              },
+              child: const Text("Cerrar sesión"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,26 +100,29 @@ class _ProfesorState extends State<Profesor> {
         title: Text('Profesor ${widget.nombre}'),
       ),
       drawer: _buildDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const Text(
-                'Gráfico de Barras',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildSectionTitle('Gráfico de Barras'),
+                    _buildBarChart(),
+                    const SizedBox(height: 16),
+                    _buildSectionTitle('Gráfico de Pastel'),
+                    _buildPieChart(),
+                  ],
+                ),
               ),
-              SizedBox(height: 300, child: _buildBarChart()),
-              const SizedBox(height: 16),
-              const Text(
-                'Gráfico de Pastel',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 300, child: _buildPieChart()),
-            ],
-          ),
-        ),
-      ),
+            ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
     );
   }
 
@@ -101,11 +136,12 @@ class _ProfesorState extends State<Profesor> {
           ..._buildDrawerItems(),
           const Divider(color: Colors.black54),
           ListTile(
-              leading: const Icon(Icons.logout, color: Colors.redAccent),
-              title: const Text('Cerrar sesión'),
-              onTap: () {
-                _logout(context);
-              },)
+            leading: const Icon(Icons.logout, color: Colors.redAccent),
+            title: const Text('Cerrar sesión'),
+            onTap: () {
+              _logout(context);
+            },
+          ),
         ],
       ),
     );
@@ -129,34 +165,36 @@ class _ProfesorState extends State<Profesor> {
       {
         'icon': Icons.home_outlined,
         'text': 'Curso',
-        'route': ProfesorCursosScreen(profesorId: widget.profesorId)
+        'route': ProfesorCursosScreen(profesorId: widget.profesorId),
       },
       {
         'icon': Icons.account_box_sharp,
         'text': 'Subir Novedades',
-        'route': ProfesorNovedadesScreen(profesorId: widget.profesorId)
+        'route': ProfesorNovedadesScreen(profesorId: widget.profesorId),
       },
       {
         'icon': Icons.folder,
         'text': 'Subir Tarea',
-        'route': MateriasScreen(profesorId: widget.profesorId)
+        'route': MateriasScreen(profesorId: widget.profesorId),
       },
       {
         'icon': Icons.account_box_rounded,
         'text': 'Asistencias',
-        'route': AsistenciaScreen()
+        'route': AsistenciaScreen(),
       },
     ];
 
     return items
         .asMap()
         .entries
-        .map((entry) => _buildDrawerItem(
-              icon: entry.value['icon'] as IconData,
-              text: entry.value['text'] as String,
-              index: entry.key,
-              route: entry.value['route'] as Widget,
-            ))
+        .map(
+          (entry) => _buildDrawerItem(
+            icon: entry.value['icon'] as IconData,
+            text: entry.value['text'] as String,
+            index: entry.key,
+            route: entry.value['route'] as Widget,
+          ),
+        )
         .toList();
   }
 
@@ -167,7 +205,10 @@ class _ProfesorState extends State<Profesor> {
     required Widget route,
   }) {
     return ListTile(
-      leading: Icon(icon, color: _selectedIndex == index ? Colors.yellow : null),
+      leading: Icon(
+        icon,
+        color: _selectedIndex == index ? Colors.yellow : null,
+      ),
       title: Text(text),
       selected: _selectedIndex == index,
       onTap: () {
@@ -180,74 +221,74 @@ class _ProfesorState extends State<Profesor> {
       },
     );
   }
-Widget _buildBarChart() {
-  return BarChart(
-    BarChartData(
-      borderData: FlBorderData(show: false),
-      titlesData: FlTitlesData(
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: true, reservedSize: 40),
-        ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            getTitlesWidget: (value, meta) {
-              switch (value.toInt()) {
-                case 0:
-                  return const Text('Asistencias');
-                case 1:
-                  return const Text('Estudiantes');
-                case 2:
-                  return const Text('Materias');
-                default:
+
+  Widget _buildBarChart() {
+    if (courses.isEmpty) {
+      return const Center(child: Text('No hay datos para mostrar.'));
+    }
+
+    return SizedBox(
+      height: 300,
+      child: BarChart(
+        BarChartData(
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() < courses.length) {
+                    return Text(courses[value.toInt()]['nombreCurso']);
+                  }
                   return const Text('');
-              }
-            },
+                },
+              ),
+            ),
           ),
+          barGroups: courses
+              .asMap()
+              .entries
+              .map(
+                (entry) => BarChartGroupData(
+                  x: entry.key,
+                  barRods: [
+                    BarChartRodData(
+                      toY: entry.value['duracion'].toDouble(),
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
+              )
+              .toList(),
         ),
       ),
-      barGroups: [
-        BarChartGroupData(
-          x: 0,
-          barRods: [BarChartRodData(toY: 50, color: Colors.green)],
-        ),
-        BarChartGroupData(
-          x: 1,
-          barRods: [BarChartRodData(toY: 120, color: Colors.blue)],
-        ),
-        BarChartGroupData(
-          x: 2,
-          barRods: [BarChartRodData(toY: 5, color: Colors.orange)],
-        ),
-      ],
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildPieChart() {
-  return PieChart(
-    PieChartData(
-      sections: [
-        PieChartSectionData(
-          value: 40,
-          color: Colors.blue,
-          title: '40%',
-        ),
-        PieChartSectionData(
-          value: 30,
-          color: Colors.red,
-          title: '30%',
-        ),
-        PieChartSectionData(
-          value: 30,
-          color: Colors.green,
-          title: '30%',
-        ),
-      ],
-      centerSpaceRadius: 40,
-    ),
-  );
-}
+  Widget _buildPieChart() {
+    if (courses.isEmpty) {
+      return const Center(child: Text('No hay datos para mostrar.'));
+    }
 
-
+    return SizedBox(
+      height: 300,
+      child: PieChart(
+        PieChartData(
+          sections: courses
+              .map(
+                (course) => PieChartSectionData(
+                  value: course['duracion'].toDouble(),
+                  color: Colors.primaries[courses.indexOf(course) % Colors.primaries.length],
+                  title: '${course['duracion']}h',
+                ),
+              )
+              .toList(),
+          centerSpaceRadius: 40,
+        ),
+      ),
+    );
+  }
 }

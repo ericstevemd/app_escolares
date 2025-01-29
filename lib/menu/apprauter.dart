@@ -5,7 +5,7 @@ import 'package:app_escolares/Presentacion/Scrreen/administrador/administrador.d
 import 'package:app_escolares/Presentacion/Scrreen/administrador/registro.dart';
 import 'package:app_escolares/Presentacion/Scrreen/estudiantes/estudiantes.dart';
 import 'package:app_escolares/Presentacion/Scrreen/login/loginScreen.dart';
-import 'package:app_escolares/Presentacion/Scrreen/repesentante/representante.dart';
+
 import 'package:go_router/go_router.dart';
 dynamic Login;
 
@@ -25,9 +25,7 @@ final appRouter=GoRouter(
     ),
     
 
-     GoRoute(path: '/Representante',
-    builder: (context, state) => const Representante(),
-    ),
+
     
 
 

@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Representante extends StatefulWidget {
+
+final String nombre ;
+final String correo;  
+final int representanteid;
  
   const Representante({
-    super.key,
+    super.key, required this.nombre, required this.correo, required this. representanteid,   
 
   });
 
@@ -82,14 +86,14 @@ class _RepresentanteState extends State<Representante> {
       child: Column(
         children: <Widget>[
           // Encabezado del Drawer
-          const UserAccountsDrawerHeader(
-            accountName: Text('Representante'), // Nombre genérico
-            accountEmail: Text('correo@ejemplo.com'), // Correo genérico
-            currentAccountPicture: CircleAvatar(
+          UserAccountsDrawerHeader(
+            accountName: Text(widget.nombre), // Nombre genérico
+            accountEmail:  Text(widget.correo), // Correo genérico
+            currentAccountPicture: const CircleAvatar(
               backgroundColor: Colors.white,
               child: Icon(Icons.person, size: 40, color: Colors.blueAccent),
             ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.blueAccent,
             ),
           ),
