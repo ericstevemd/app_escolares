@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class AsistenciaScreen extends StatefulWidget {
+  final int profesorId; // Ahora se recibe del login
+
+  const AsistenciaScreen({Key? key, required this.profesorId}) : super(key: key);
+
   @override
   _AsistenciaScreenState createState() => _AsistenciaScreenState();
 }
@@ -11,10 +15,9 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
   List<dynamic> asistenciaList = [];
   bool isLoading = true;
   String? errorMessage;
-  final int profesorId = 1; // ID de ejemplo, modificar según sea necesario
 
   // Función para obtener los datos de la API
-  Future<void> fetchAsistencia(int id) async {
+  Future<void> fetchAsistencia() async {
     setState(() {
       isLoading = true;
       errorMessage = null;
@@ -22,7 +25,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://158.220.124.141:3002/asistencia/$id/profesor/materia/estudiantes'),
+        Uri.parse('http://158.220.124.141:3002/asistencia/${widget.profesorId}/profesor/materia/estudiantes'),
       );
 
       if (response.statusCode == 200) {
@@ -47,7 +50,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
 
   // Función para actualizar el estado
   Future<void> updateEstado(int id, String nuevoEstado) async {
-    final url = Uri.parse('http://10.195.243.180:3002/asistencia/$id');
+    final url = Uri.parse('http://158.220.124.141:3002/asistencia/$id');
     try {
       final response = await http.patch(
         url,
@@ -77,7 +80,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
   @override
   void initState() {
     super.initState();
-    fetchAsistencia(profesorId);
+    fetchAsistencia();
   }
 
   @override
@@ -92,7 +95,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
         child: Column(
           children: [
             ElevatedButton.icon(
-              onPressed: () => fetchAsistencia(profesorId),
+              onPressed: fetchAsistencia,
               icon: const Icon(Icons.refresh),
               label: const Text('Recargar'),
               style: ElevatedButton.styleFrom(

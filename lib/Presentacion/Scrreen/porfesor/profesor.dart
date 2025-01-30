@@ -180,7 +180,7 @@ class _ProfesorState extends State<Profesor> {
       {
         'icon': Icons.account_box_rounded,
         'text': 'Asistencias',
-        'route': AsistenciaScreen(),
+        'route': AsistenciaScreen(profesorId: widget.profesorId),
       },
     ];
 
