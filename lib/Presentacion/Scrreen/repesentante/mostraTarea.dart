@@ -19,58 +19,56 @@ class _ActividadesScreenState extends State<ActividadesScreen> {
     super.initState();
     fetchActividades();
   }
-Future<void> fetchActividades() async {
-  final url = Uri.parse('http://158.220.124.141:3002/actividad/'); // Cambiar la IP
-  try {
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        actividades = data;
-        isLoading = false;
-      });
 
-      // Mostrar una notificación al cargar actividades
-      await showNotification(
-        'Actividades cargadas',
-        'Se han cargado ${actividades.length} actividades.',
-      );
-    } else {
+  Future<void> fetchActividades() async {
+    final url = Uri.parse('http://158.220.124.141:3002/actividad/'); // Cambiar la IP
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          actividades = data;
+          isLoading = false;
+        });
+
+        // Mostrar una notificación al cargar actividades
+        await showNotification(
+          'Actividades cargadas',
+          'Se han cargado ${actividades.length} actividades.',
+        );
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        throw Exception('Error al cargar actividades');
+      }
+    } catch (e) {
       setState(() {
         isLoading = false;
       });
-      throw Exception('Error al cargar actividades');
+      print('Error: $e');
     }
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-    });
-    print('Error: $e');
   }
-}
-
-
 
   Future<void> showNotification(String title, String body) async {
-  const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-    'channel_id',
-    'Actividades Notifications',
-    channelDescription: 'Notificaciones de actividades',
-    importance: Importance.max,
-    priority: Priority.high,
-  );
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'channel_id',
+      'Actividades Notifications',
+      channelDescription: 'Notificaciones de actividades',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
 
-  const NotificationDetails platformDetails =
-      NotificationDetails(android: androidDetails);
+    const NotificationDetails platformDetails =
+        NotificationDetails(android: androidDetails);
 
-  await flutterLocalNotificationsPlugin.show(
-    0, // ID único para la notificación
-    title,
-    body,
-    platformDetails,
-  );
-}
-
+    await flutterLocalNotificationsPlugin.show(
+      0, // ID único para la notificación
+      title,
+      body,
+      platformDetails,
+    );
+  }
 
   Widget _buildImage(String? imageUrl) {
     if (imageUrl == null) {
@@ -138,19 +136,20 @@ Future<void> fetchActividades() async {
                                     fontWeight: FontWeight.bold)),
                           ],
                         ),
-                       onTap: () async {
-  await showNotification(
-    'Actividad seleccionada',
-    'Has seleccionado: ${actividad['nombre']}',
-  );
+                        onTap: () async {
+                          final actividadId = actividad['id']; // ID de la actividad
+                          await showNotification(
+                            'Actividad seleccionada',
+                            'Has seleccionado: ${actividad['nombre']}',
+                          );
 
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => DetallesActividadScreen(actividad: actividad),
-    ),
-  );
-},
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetallesActividadScreen(id: actividadId),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },
@@ -159,10 +158,46 @@ Future<void> fetchActividades() async {
   }
 }
 
-class DetallesActividadScreen extends StatelessWidget {
-  final Map<String, dynamic> actividad;
+class DetallesActividadScreen extends StatefulWidget {
+  final String id;
 
-  DetallesActividadScreen({required this.actividad});
+  DetallesActividadScreen({required this.id});
+
+  @override
+  _DetallesActividadScreenState createState() => _DetallesActividadScreenState();
+}
+
+class _DetallesActividadScreenState extends State<DetallesActividadScreen> {
+  late Map<String, dynamic> actividad;
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchActividadDetails();
+  }
+
+  Future<void> fetchActividadDetails() async {
+    final url = Uri.parse('http://158.220.124.141:3002/actividad/${widget.id}');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          actividad = data;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Error al cargar los detalles de la actividad');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error: $e');
+    }
+  }
 
   Widget _buildImage(String? imageUrl) {
     if (imageUrl == null) {
@@ -192,37 +227,37 @@ class DetallesActividadScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = actividad['foto'];
     return Scaffold(
       appBar: AppBar(
         title: Text(actividad['nombre'] ?? 'Detalles de la Actividad'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(child: _buildImage(imageUrl)),
-            const SizedBox(height: 16),
-            Text(
-              actividad['nombre'] ?? 'Sin nombre',
-              style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(child: _buildImage(actividad['foto'])),
+                  const SizedBox(height: 16),
+                  Text(
+                    actividad['nombre'] ?? 'Sin nombre',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    actividad['descripcion'] ?? 'Sin descripción',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Decisión: ${actividad['decision'] ?? 'No disponible'}',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              actividad['descripcion'] ?? 'Sin descripción',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Decisión: ${actividad['descripcion'] ?? 'No disponible'}',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
