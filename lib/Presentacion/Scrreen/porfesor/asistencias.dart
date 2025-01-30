@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class AsistenciaScreen extends StatefulWidget {
-  final int profesorId; // Ahora se recibe del login
+  final int profesorId;
 
   const AsistenciaScreen({Key? key, required this.profesorId}) : super(key: key);
 
@@ -16,7 +16,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
   bool isLoading = true;
   String? errorMessage;
 
-  // Función para obtener los datos de la API
+  // Función para realizar la petición GET de asistencia
   Future<void> fetchAsistencia() async {
     setState(() {
       isLoading = true;
@@ -25,21 +25,39 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://158.220.124.141:3002/asistencia/${widget.profesorId}/profesor/materia/estudiantes'),
+        Uri.parse(
+            'http://158.220.124.141:3002/asistencia/${widget.profesorId}/profesor/materia/estudiantes'),
       );
 
+      print('Realizando petición GET a: ${response.request?.url}');
+      print('Código de respuesta: ${response.statusCode}');
+      print('Cuerpo de la respuesta: ${response.body}'); // Imprimir el cuerpo de la respuesta
+
       if (response.statusCode == 200) {
-        setState(() {
-          asistenciaList = json.decode(response.body);
-        });
+        final decodedData = json.decode(response.body);
+        print('Respuesta decodificada: $decodedData'); // Imprimir la respuesta decodificada
+
+        if (decodedData is Map<String, dynamic>) {
+          // Si la respuesta es un solo objeto, lo convertimos en una lista
+          setState(() {
+            asistenciaList = [decodedData];  // Convertir el objeto en una lista de un solo elemento
+            errorMessage = asistenciaList.isEmpty
+                ? 'No se encontraron registros de asistencia.'
+                : null;
+          });
+        } else {
+          setState(() {
+            errorMessage = 'La respuesta no contiene un objeto válido de asistencia.';
+          });
+        }
       } else {
         setState(() {
-          errorMessage = 'Error: ${response.statusCode} - ${response.reasonPhrase}';
+          errorMessage = 'Error ${response.statusCode}: ${response.reasonPhrase}';
         });
       }
     } catch (error) {
       setState(() {
-        errorMessage = 'Error: No se pudo conectar con el servidor';
+        errorMessage = 'Error de conexión: ${error.toString()}';
       });
     } finally {
       setState(() {
@@ -48,7 +66,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
     }
   }
 
-  // Función para actualizar el estado
+  // Función para actualizar el estado de asistencia
   Future<void> updateEstado(int id, String nuevoEstado) async {
     final url = Uri.parse('http://158.220.124.141:3002/asistencia/$id');
     try {
@@ -58,6 +76,9 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
         body: json.encode({'estado': nuevoEstado}),
       );
 
+      print('✅ Código de respuesta: ${response.statusCode}');
+      print('📨 Cuerpo de la respuesta: ${response.body}');
+
       if (response.statusCode == 200) {
         setState(() {
           final index = asistenciaList.indexWhere((asistencia) => asistencia['id'] == id);
@@ -65,9 +86,11 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
             asistenciaList[index]['estado'] = nuevoEstado;
           }
         });
+        print('✔ Estado actualizado correctamente.');
       } else {
+        print('❌ Error al actualizar: ${response.reasonPhrase}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al actualizar el estado: ${response.reasonPhrase}')),
+          SnackBar(content: Text('Error al actualizar: ${response.reasonPhrase}')),
         );
       }
     } catch (error) {
@@ -86,10 +109,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Asistencia'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Asistencia'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -98,31 +118,14 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
               onPressed: fetchAsistencia,
               icon: const Icon(Icons.refresh),
               label: const Text('Recargar'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
             ),
             const SizedBox(height: 16.0),
             if (isLoading)
               const Center(child: CircularProgressIndicator())
             else if (errorMessage != null)
-              Center(
-                child: Text(
-                  errorMessage!,
-                  style: const TextStyle(color: Colors.red, fontSize: 16.0),
-                  textAlign: TextAlign.center,
-                ),
-              )
+              Center(child: Text(errorMessage!, style: const TextStyle(color: Colors.red)))
             else if (asistenciaList.isEmpty)
-              const Center(
-                child: Text(
-                  'No hay registros de asistencia disponibles.',
-                  style: TextStyle(fontSize: 16.0),
-                ),
-              )
+              const Center(child: Text('No hay registros de asistencia disponibles.'))
             else
               Expanded(
                 child: ListView.builder(
@@ -132,9 +135,6 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8.0),
                       elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: Colors.blueAccent,
@@ -143,10 +143,8 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
                             style: const TextStyle(color: Colors.white),
                           ),
                         ),
-                        title: Text(
-                          'Estudiante: ${asistencia['estudiante']['nombre']}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        title: Text('Estudiante: ${asistencia['estudiante']['nombre']}',
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(
                           'Materia: ${asistencia['materia']['nombreMateria']} Profesor: ${asistencia['profesor']['nombre']}',
                         ),

@@ -38,14 +38,31 @@ class _ProfesorState extends State<Profesor> {
 
   Future<void> fetchCourses(int id) async {
     final url = Uri.parse('http://158.220.124.141/profesor/$id/materias');
+    print('Haciendo solicitud a la API con URL: $url');
     try {
       final response = await http.get(url);
+      print('Respuesta recibida: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        setState(() {
-          courses = List<Map<String, dynamic>>.from(data['nombreMateria']);
-          isLoading = false;
-        });
+        print('Datos recibidos: $data');
+
+        // Verifica si la clave 'Materias' existe y contiene datos
+        if (data['Materias'] != null && data['Materias'].isNotEmpty) {
+          print('Datos de materias encontrados: ${data['Materias']}');
+          setState(() {
+            // Mapeamos los datos de las materias
+            courses = List<Map<String, dynamic>>.from(data['Materias'].map((materia) {
+              return {
+                'nombreCurso': materia['nombreMateria'],
+                'duracion': 10, // Aquí puedes asignar una duración real si tienes ese dato
+              };
+            }));
+            isLoading = false;
+          });
+        } else {
+          _handleError('No hay materias disponibles.');
+        }
       } else {
         _handleError('Error al obtener los datos: ${response.statusCode}');
       }
